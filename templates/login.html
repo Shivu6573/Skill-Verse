@@ -1,0 +1,47 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Skill Verse - Sign In</title>
+<link rel="stylesheet" href="{{ url_for('static', filename='css/main.css') }}">
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+</head>
+<body class="auth-body">
+<div class="auth-container">
+  <div class="auth-card">
+    <div class="auth-brand">
+      <div class="brand-icon-lg">🎓</div>
+      <div>
+        <div class="auth-brand-name">Skill Verse</div>
+        <div class="auth-brand-sub">Personalized Learning</div>
+      </div>
+    </div>
+
+    <h2 class="auth-title">Welcome back</h2>
+    <p class="auth-subtitle">Sign in to continue your learning journey</p>
+
+    {% with messages = get_flashed_messages(with_categories=true) %}
+      {% for cat, msg in messages %}
+        <div class="alert alert-{{ cat }}">{{ msg }}</div>
+      {% endfor %}
+    {% endwith %}
+
+    <form method="POST" action="{{ url_for('auth.login') }}">
+      <div class="form-group">
+        <label class="form-label">Email Address</label>
+        <input type="email" name="email" class="form-input" placeholder="you@example.com" required>
+      </div>
+      <div class="form-group">
+        <label class="form-label">Password</label>
+        <input type="password" name="password" class="form-input" placeholder="••••••••" required>
+      </div>
+      <button type="submit" class="btn-primary w-full">Sign In →</button>
+    </form>
+
+    <div class="auth-divider"><span>or</span></div>
+    <p class="auth-switch">Don't have an account? <a href="{{ url_for('auth.register') }}">Create one free</a></p>
+  </div>
+</div>
+</body>
+</html>

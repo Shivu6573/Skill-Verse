@@ -1,0 +1,287 @@
+{% extends "base.html" %}
+{% from "nav_macros.html" import student_nav %}
+
+{% block sidebar_nav %}{{ student_nav('chatbot') }}{% endblock %}
+{% block page_title %}EduBot – AI Assistant{% endblock %}
+{% block page_subtitle %}Ask me anything about courses, topics, or your learning path{% endblock %}
+
+{% block content %}
+<div class="chatbot-wrap">
+  <section class="chatbot-shell">
+    <header class="chatbot-header glass-card">
+      <div class="chatbot-avatar"><span>🤖</span></div>
+      <div class="chatbot-header-copy">
+        <div class="chatbot-heading-row">
+          <div>
+            <p class="assistant-label">AI Learning Assistant</p>
+            <h1 class="assistant-title">EduBot</h1>
+          </div>
+          <span class="status-pill online">Online</span>
+        </div>
+        <p class="assistant-subtitle">Ask anything about courses, career paths, learning strategies, and study support.</p>
+      </div>
+    </header>
+
+    <div class="chatbot-quick panel-card">
+      <div class="quick-heading-row">
+        <p class="quick-title">Quick prompts</p>
+        <span class="hint-pill">Tap to start</span>
+      </div>
+      <div class="quick-prompts">
+        <button class="quick-chip" onclick="sendQuick('Recommend a course for me')"><span>✨</span>Recommend a course</button>
+        <button class="quick-chip" onclick="sendQuick('How to learn Machine Learning?')"><span>📚</span>How to learn Machine Learning?</button>
+        <button class="quick-chip" onclick="sendQuick('What is Deep Learning?')"><span>🧠</span>What is Deep Learning?</button>
+        <button class="quick-chip" onclick="sendQuick('Best Python resources')"><span>🐍</span>Best Python resources</button>
+        <button class="quick-chip" onclick="sendQuick('Help me with web development')"><span>🌐</span>Help me with web development</button>
+        <button class="quick-chip" onclick="sendQuick('Motivate me to study')"><span>⚡</span>Motivate me to study</button>
+      </div>
+    </div>
+
+    <div class="chatbot-panel glass-card">
+      <div class="chat-window" id="chatWindow" aria-live="polite" aria-label="Chat conversation"></div>
+
+      <form class="chat-input-row" onsubmit="event.preventDefault(); sendMessage()">
+        <textarea id="chatInput" class="chat-textarea" rows="1" placeholder="Ask EduBot anything..." oninput="autosizeInput(this)" onkeydown="handleChatInputKey(event)"></textarea>
+        <button id="sendButton" class="btn-send" type="submit">Send</button>
+      </form>
+    </div>
+  </section>
+</div>
+{% endblock %}
+
+{% block scripts %}
+<script>
+let history = [];
+
+async function sendMessage() {
+  const input = document.getElementById('chatInput');
+  const sendButton = document.getElementById('sendButton');
+  const msg = input.value.trim();
+  if (!msg || sendButton.disabled) return;
+
+  input.value = '';
+  input.disabled = true;
+  sendButton.disabled = true;
+  addMsg(msg, 'user');
+  const typing = addTyping();
+
+  try {
+    console.log('[Chatbot] sending request', {message: msg, history});
+    const resp = await fetch('/api/chat', {
+      method: 'POST',
+      headers: {'Content-Type': 'application/json'},
+      body: JSON.stringify({message: msg, history: history})
+    });
+    const text = await resp.text();
+    console.log('[Chatbot] response', {status: resp.status, ok: resp.ok, body: text});
+    if (!resp.ok) {
+      console.error('[Chatbot] API error', {status: resp.status, body: text});
+    }
+    let data = {};
+    try {
+      data = JSON.parse(text);
+    } catch (e) {
+      data = {reply: text || "Sorry, I couldn't generate a response right now."};
+    }
+    typing.remove();
+    const reply = data.reply || "Sorry, I couldn't generate a response right now.";
+    addMsg(reply, 'bot');
+    history.push({role: 'user', content: msg}, {role: 'assistant', content: reply});
+    if (history.length > 20) history = history.slice(-20);
+  } catch (e) {
+    console.error('[Chatbot] request failed', e);
+    typing.remove();
+    addMsg(e && e.message ? `Network error: ${e.message}` : 'Network error while contacting the chatbot service.', 'bot');
+  } finally {
+    input.disabled = false;
+    sendButton.disabled = false;
+    input.focus();
+  }
+}
+
+function escapeHtml(text) {
+  return String(text)
+    .replace(/&/g, '&amp;')
+    .replace(/</g, '&lt;')
+    .replace(/>/g, '&gt;')
+    .replace(/"/g, '&quot;')
+    .replace(/'/g, '&#39;');
+}
+
+function formatMarkdown(text) {
+  const lines = String(text || '').replace(/\r/g, '').split('\n');
+  const blocks = [];
+  const applyInline = (value) => {
+    let escaped = escapeHtml(value);
+    escaped = escaped.replace(/`([^`]+)`/g, '<code>$1</code>');
+    escaped = escaped.replace(/\*\*([^*]+)\*\*/g, '<strong>$1</strong>');
+    escaped = escaped.replace(/\*([^*]+)\*/g, '<em>$1</em>');
+    escaped = escaped.replace(/\[(.*?)\]\((.*?)\)/g, '<a href="$2" target="_blank" rel="noreferrer">$1</a>');
+    return escaped;
+  };
+
+  let index = 0;
+  while (index < lines.length) {
+    const rawLine = lines[index];
+    const line = rawLine.trim();
+
+    if (!line) {
+      index += 1;
+      continue;
+    }
+
+    if (line.startsWith('```')) {
+      const codeLines = [];
+      index += 1;
+      while (index < lines.length && !lines[index].trim().startsWith('```')) {
+        codeLines.push(lines[index]);
+        index += 1;
+      }
+      blocks.push(`<pre><code>${escapeHtml(codeLines.join('\n'))}</code></pre>`);
+      index += 1;
+      continue;
+    }
+
+    if (line.includes('|') && lines[index + 1] && lines[index + 1].includes('|')) {
+      const rows = [];
+      while (index < lines.length && lines[index].includes('|')) {
+        rows.push(lines[index]);
+        index += 1;
+      }
+      const tableRows = rows.map(row => row.split('|').slice(1, -1).map(cell => cell.trim()));
+      const header = tableRows[0];
+      const body = tableRows.slice(1);
+      const headerHtml = `<tr>${header.map(cell => `<th>${applyInline(cell)}</th>`).join('')}</tr>`;
+      const bodyHtml = body.map(row => `<tr>${row.map(cell => `<td>${applyInline(cell)}</td>`).join('')}</tr>`).join('');
+      blocks.push(`<table><thead>${headerHtml}</thead><tbody>${bodyHtml}</tbody></table>`);
+      continue;
+    }
+
+    if (/^[-*]\s+/.test(line)) {
+      const items = [];
+      while (index < lines.length && /^[-*]\s+/.test(lines[index].trim())) {
+        items.push(applyInline(lines[index].trim().replace(/^[-*]\s+/, '')));
+        index += 1;
+      }
+      blocks.push(`<ul>${items.map(item => `<li>${item}</li>`).join('')}</ul>`);
+      continue;
+    }
+
+    if (/^\d+\.\s+/.test(line)) {
+      const items = [];
+      while (index < lines.length && /^\d+\.\s+/.test(lines[index].trim())) {
+        items.push(applyInline(lines[index].trim().replace(/^\d+\.\s+/, '')));
+        index += 1;
+      }
+      blocks.push(`<ol>${items.map(item => `<li>${item}</li>`).join('')}</ol>`);
+      continue;
+    }
+
+    blocks.push(`<p>${applyInline(rawLine)}</p>`);
+    index += 1;
+  }
+
+  return blocks.join('');
+}
+
+function addMsg(text, role) {
+  const win = document.getElementById('chatWindow');
+  const div = document.createElement('div');
+  div.className = `chat-msg ${role}-msg`;
+  const formatted = formatMarkdown(text);
+  const timestamp = new Date().toLocaleTimeString([], {hour: '2-digit', minute: '2-digit'});
+
+  if (role === 'bot') {
+    div.innerHTML = `
+      <div class="bot-avatar">🎓</div>
+      <div class="msg-preview">
+        <div class="msg-bubble">${formatted}</div>
+        <div class="msg-footer">
+          <span class="msg-time">${timestamp}</span>
+          <div class="message-controls">
+            <button type="button" class="message-button" onclick="copyMessage(this)">Copy</button>
+            <button type="button" class="message-button" onclick="regenerateMessage(this)">Regenerate</button>
+            <button type="button" class="reaction-button" onclick="toggleReaction(this)">👍</button>
+            <button type="button" class="reaction-button" onclick="toggleReaction(this)">👎</button>
+          </div>
+        </div>
+      </div>
+    `;
+  } else {
+    div.innerHTML = `
+      <div class="msg-preview user-preview">
+        <div class="msg-bubble user-bubble">${formatted}</div>
+        <div class="msg-footer user-footer"><span class="msg-time">${timestamp}</span></div>
+      </div>
+    `;
+  }
+
+  div.dataset.content = text;
+  win.appendChild(div);
+  win.scrollTop = win.scrollHeight;
+  return div;
+}
+
+function addTyping() {
+  const win = document.getElementById('chatWindow');
+  const div = document.createElement('div');
+  div.className = 'chat-msg bot-msg typing-card';
+  div.innerHTML = `
+    <div class="bot-avatar">🎓</div>
+    <div class="msg-preview">
+      <div class="msg-bubble typing-indicator"><span></span><span></span><span></span></div>
+    </div>
+  `;
+  win.appendChild(div);
+  win.scrollTop = win.scrollHeight;
+  return div;
+}
+
+function sendQuick(text) {
+  const input = document.getElementById('chatInput');
+  input.value = text;
+  autosizeInput(input);
+  sendMessage();
+}
+
+function handleChatInputKey(event) {
+  if (event.key === 'Enter' && !event.shiftKey) {
+    event.preventDefault();
+    sendMessage();
+  }
+}
+
+function autosizeInput(field) {
+  field.style.height = 'auto';
+  field.style.height = `${Math.min(field.scrollHeight, 220)}px`;
+}
+
+function copyMessage(button) {
+  const bubble = button.closest('.chat-msg');
+  const text = bubble && bubble.dataset.content;
+  if (!text) return;
+  navigator.clipboard.writeText(text).then(() => {
+    button.textContent = 'Copied';
+    setTimeout(() => { button.textContent = 'Copy'; }, 1200);
+  });
+}
+
+function regenerateMessage(button) {
+  const lastUser = [...history].reverse().find(item => item.role === 'user');
+  if (!lastUser) return;
+  const input = document.getElementById('chatInput');
+  input.value = lastUser.content;
+  autosizeInput(input);
+  sendMessage();
+}
+
+function toggleReaction(button) {
+  const active = button.classList.toggle('active-reaction');
+  if (active) {
+    button.classList.add('selected');
+  } else {
+    button.classList.remove('selected');
+  }
+}
+</script>
+{% endblock %}

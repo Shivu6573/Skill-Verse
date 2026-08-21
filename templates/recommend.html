@@ -1,0 +1,87 @@
+{% extends "base.html" %}
+{% from "nav_macros.html" import student_nav %}
+
+{% block sidebar_nav %}{{ student_nav('recommend') }}{% endblock %}
+{% block page_title %}AI-Powered Recommendations{% endblock %}
+{% block page_subtitle %}Personalized project suggestions based on your completed courses, skills, and interests{% endblock %}
+
+{% block content %}
+<div class="info-banner">
+  <div class="info-banner-icon">🤖</div>
+  <div>
+    <h3 style="margin:0 0 .5rem">How Our AI Works</h3>
+    <p style="margin:0;color:#94a3b8;font-size:.9rem;">
+      Our recommendation engine analyzes your <strong>interests</strong>, <strong>skills</strong>, and <strong>completed courses</strong> to suggest hands-on AI project ideas. Courses you've already enrolled in are excluded. The more you complete, the more personalized your recommendations become.
+    </p>
+  </div>
+</div>
+
+<h3 class="section-title">Recommended for You</h3>
+
+{% if gen_errors %}
+<div class="glass-card" style="border-left:4px solid #ffb4b4;padding:12px;margin-bottom:14px;background:#fff7f7;color:#7f1d1d">
+  <strong>Recommendation generation errors:</strong>
+  <ul style="margin:.5rem 0 0 1rem">
+    {% for cid, msg in gen_errors.items() %}
+      <li><strong>{{ cid }}</strong>: {{ msg }}</li>
+    {% endfor %}
+  </ul>
+</div>
+{% endif %}
+
+{% if recommended %}
+<div class="courses-grid">
+  {% for course in recommended %}
+  <div class="course-card">
+    <div class="course-card-img bg-ai">
+      <div class="course-emoji">🤖</div>
+      <span class="diff-badge diff-{{ course.difficulty|lower }}">{{ course.difficulty }}</span>
+    </div>
+    <div class="course-card-body">
+      <div style="display:flex;gap:.5rem;align-items:center;margin-bottom:.5rem;">
+        <div class="course-cat-tag">AI Project</div>
+        <span class="ai-pick-badge">Recommended</span>
+      </div>
+      <h3 class="course-card-title">{{ course.title }}</h3>
+      {% if course.courseTitle %}
+      <div style="font-size:.85rem;color:#64748b;margin-top:.25rem">Based on: {{ course.courseTitle }}</div>
+      {% endif %}
+      <p class="course-card-desc">{{ course.description }}</p>
+      <div class="course-card-meta" style="margin-bottom:.75rem;">
+        <div><strong>Why this project?</strong> {{ course.reason }}</div>
+      </div>
+      <div class="course-card-meta">
+        <span>⏱ {{ course.estimatedTime }}</span>
+      </div>
+      <div class="course-card-meta" style="margin:.75rem 0; gap:.5rem; display:flex; flex-direction:column;">
+        <div><strong>Skills:</strong> {{ course.requiredSkills | join(", ") }}</div>
+        <div><strong>Technologies:</strong> {{ course.technologies | join(", ") }}</div>
+      </div>
+      <div class="course-card-meta" style="margin:.5rem 0;">
+        <strong>Learning Outcomes:</strong>
+        <ul style="margin:.25rem 0 0 1rem;padding:0;">
+          {% for lo in course.learningOutcomes %}
+            <li>{{ lo }}</li>
+          {% endfor %}
+        </ul>
+      </div>
+      <div class="course-card-actions">
+        <a href="#" class="btn-primary btn-sm" onclick="return false;">Start Project</a>
+      </div>
+    </div>
+  </div>
+  {% endfor %}
+</div>
+{% else %}
+<div class="empty-state-big">
+  <div style="font-size:3rem">🎯</div>
+  {% if has_completed_courses %}
+  <h3>No AI recommendations are available yet.</h3>
+  <p>We are still generating personalized project ideas. Please check back shortly or complete another course.</p>
+  {% else %}
+  <h3>Complete a course to unlock AI Project Recommendations.</h3>
+  <p>Finish one of your enrolled courses to receive personalized project ideas based on completed course details, your skills, and interests.</p>
+  {% endif %}
+</div>
+{% endif %}
+{% endblock %}

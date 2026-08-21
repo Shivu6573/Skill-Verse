@@ -1,0 +1,63 @@
+{% extends "base.html" %}
+{% from "nav_macros.html" import admin_nav %}
+
+{% block sidebar_nav %}{{ admin_nav('quizzes') }}{% endblock %}
+{% block page_title %}Manage Quizzes{% endblock %}
+{% block page_subtitle %}Create and manage quiz assessments{% endblock %}
+
+{% block content %}
+<div class="card" style="margin-bottom:1.5rem;">
+  <h3 style="margin:0 0 1.5rem">➕ Create New Quiz</h3>
+  <form method="POST">
+    <div class="form-row">
+      <div class="form-group" style="flex:2">
+        <label class="form-label">Quiz Title *</label>
+        <input type="text" name="title" class="form-input" placeholder="e.g. Advanced ML Concepts" required>
+      </div>
+      <div class="form-group">
+        <label class="form-label">Category *</label>
+        <select name="category" class="form-select" required>
+          <option>AI</option><option>Data Science</option>
+          <option>Machine Learning</option><option>Web Development</option>
+        </select>
+      </div>
+    </div>
+    <button type="submit" class="btn-primary">Create Quiz</button>
+  </form>
+</div>
+
+<div class="card">
+  <div class="card-header-row" style="margin-bottom:1rem;">
+    <div>
+      <h3 style="margin:0">All Quizzes</h3>
+      <p style="color:#64748b;margin:.25rem 0 0;font-size:.9rem">{{ quizzes|length }} quizzes total</p>
+    </div>
+  </div>
+  <table class="admin-table">
+    <thead>
+      <tr><th>QUIZ TITLE</th><th>CATEGORY</th><th>QUESTIONS</th><th>CREATED</th><th>ACTION</th></tr>
+    </thead>
+    <tbody>
+      {% for q in quizzes %}
+      <tr>
+        <td>
+          <div style="display:flex;align-items:center;gap:.75rem;">
+            <span>{{ '🤖' if q.category=='AI' else ('💻' if q.category=='Web Development' else '📊') }}</span>
+            <span style="font-weight:500">{{ q.title }}</span>
+          </div>
+        </td>
+        <td><span class="cat-badge">{{ q.category }}</span></td>
+        <td><span class="badge-q">{{ q.questions|length }} questions</span></td>
+        <td style="font-size:.85rem;color:#64748b">{{ q.createdAt }}</td>
+        <td style="display:flex;gap:.5rem;">
+          <form method="POST" action="{{ url_for('admin.delete_quiz', quiz_id=q._id) }}" onsubmit="return confirm('Delete this quiz?')">
+            <button type="submit" class="btn-danger btn-sm">🗑 Delete</button>
+          </form>
+          <a href="{{ url_for('student.take_quiz', quiz_id=q._id) }}" class="btn-outline btn-sm">Preview</a>
+        </td>
+      </tr>
+      {% endfor %}
+    </tbody>
+  </table>
+</div>
+{% endblock %}

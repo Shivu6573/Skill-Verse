@@ -1,0 +1,419 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Skill Verse Certificate</title>
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800;900&family=Cormorant+Garamond:wght@600;700&display=swap" rel="stylesheet">
+  <style>
+    :root {
+      --skill-blue: #0F4C81;
+      --skill-navy: #0A2540;
+      --skill-gold: #D4AF37;
+      --skill-gold-soft: #F3D98E;
+      --skill-white: #FFFFFF;
+      --skill-ink: #123759;
+      --skill-muted: #4E5F74;
+      --skill-border: rgba(10,37,64,0.15);
+    }
+
+    * { box-sizing: border-box; }
+
+    html, body {
+      margin: 0;
+      min-height: 100%;
+      background: linear-gradient(135deg, #edf4fb 0%, #f5f1e9 100%);
+      font-family: 'Inter', sans-serif;
+      color: var(--skill-navy);
+    }
+
+    body {
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      padding: 40px 24px;
+    }
+
+    .certificate-shell {
+      width: min(1280px, 100%);
+      background: rgba(255,255,255,0.44);
+      border: 1px solid rgba(15,76,129,0.10);
+      border-radius: 32px;
+      box-shadow: 0 28px 80px rgba(10,37,64,0.16);
+      padding: 22px;
+      backdrop-filter: blur(2px);
+    }
+
+    .certificate-frame {
+      position: relative;
+      border-radius: 28px;
+      padding: 28px 28px 36px;
+      background: linear-gradient(145deg, rgba(255,255,255,0.96), rgba(243,248,252,0.95));
+      border: 4px solid rgba(212,175,55,0.90);
+      box-shadow: inset 0 0 0 2px rgba(10,37,64,0.03);
+      overflow: hidden;
+    }
+
+    .certificate-frame::before,
+    .certificate-frame::after {
+      content: "";
+      position: absolute;
+      inset: 18px;
+      border: 2px solid rgba(15,76,129,0.12);
+      border-radius: 24px;
+      pointer-events: none;
+    }
+
+    .certificate-frame::after {
+      inset: 32px;
+      border-color: rgba(212,175,55,0.16);
+    }
+
+    .certificate-topbar {
+      position: relative;
+      z-index: 1;
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      margin-bottom: 24px;
+    }
+
+    .brand-tag {
+      display: inline-flex;
+      align-items: center;
+      padding: 8px 16px;
+      border-radius: 999px;
+      background: rgba(15,76,129,0.07);
+      border: 1px solid rgba(15,76,129,0.12);
+      font-size: 12px;
+      letter-spacing: 0.16em;
+      text-transform: uppercase;
+      color: var(--skill-blue);
+      font-weight: 800;
+    }
+
+    .status-pill {
+      padding: 8px 14px;
+      border-radius: 999px;
+      background: rgba(212,175,55,0.13);
+      border: 1px solid rgba(212,175,55,0.50);
+      font-size: 12px;
+      letter-spacing: 0.14em;
+      text-transform: uppercase;
+      font-weight: 800;
+      color: var(--skill-navy);
+    }
+
+    .certificate-body {
+      position: relative;
+      z-index: 1;
+      text-align: center;
+      padding: 12px 24px 4px;
+    }
+
+    .seal-wrap {
+      margin: 8px auto 18px auto;
+      width: 180px;
+      height: 180px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      filter: drop-shadow(0 18px 28px rgba(10,37,64,0.12));
+    }
+
+    .seal-wrap img {
+      display: block;
+      width: 100%;
+      height: 100%;
+      object-fit: contain;
+    }
+
+    .title {
+      margin: 0;
+      font-size: clamp(30px, 3.5vw, 64px);
+      letter-spacing: 0.12em;
+      text-transform: uppercase;
+      font-weight: 800;
+      color: var(--skill-navy);
+    }
+
+    .subtitle {
+      margin: 10px 0 0;
+      font-size: clamp(13px, 1.5vw, 22px);
+      letter-spacing: 0.22em;
+      text-transform: uppercase;
+      color: var(--skill-blue);
+      font-weight: 800;
+    }
+
+    .certificate-content {
+      margin-top: 18px;
+      padding: 6px 0 8px;
+    }
+
+    .cert-h2 {
+      margin: 0;
+      font-size: clamp(25px, 2.8vw, 42px);
+      font-family: 'Cormorant Garamond', serif;
+      font-weight: 700;
+      letter-spacing: 0.05em;
+      color: var(--skill-navy);
+    }
+
+    .student-name {
+      margin-top: 8px;
+      font-size: clamp(26px, 3vw, 48px);
+      font-weight: 800;
+      letter-spacing: 0.04em;
+      color: var(--skill-blue);
+    }
+
+    .divider {
+      width: min(430px, 72%);
+      height: 4px;
+      background: linear-gradient(90deg, transparent, var(--skill-gold), transparent);
+      border-radius: 999px;
+      margin: 18px auto 16px auto;
+    }
+
+    .award-line {
+      margin: 0;
+      font-size: clamp(11px, 1.2vw, 17px);
+      letter-spacing: 0.18em;
+      text-transform: uppercase;
+      color: var(--skill-muted);
+      font-weight: 700;
+    }
+
+    .course-name {
+      margin-top: 10px;
+      font-size: clamp(20px, 2.2vw, 30px);
+      font-weight: 800;
+      color: var(--skill-navy);
+    }
+
+    .meta-grid {
+      width: min(920px, 100%);
+      margin: 28px auto 0 auto;
+      display: grid;
+      grid-template-columns: repeat(2, minmax(150px, 1fr));
+      gap: 18px;
+      text-align: left;
+    }
+
+    .meta-item {
+      border-top: 1px solid rgba(15,76,129,0.14);
+      padding-top: 12px;
+    }
+
+    .meta-label {
+      display: block;
+      margin-bottom: 8px;
+      color: var(--skill-muted);
+      font-size: 11px;
+      letter-spacing: 0.18em;
+      text-transform: uppercase;
+      font-weight: 800;
+    }
+
+    .meta-value {
+      color: var(--skill-navy);
+      font-size: 18px;
+      font-weight: 700;
+    }
+
+    .bottom-row {
+      display: flex;
+      justify-content: space-between;
+      align-items: flex-end;
+      gap: 24px;
+      margin-top: 30px;
+      padding: 0 8px;
+    }
+
+    .signature-box, .verification-box {
+      flex: 1;
+      text-align: center;
+    }
+
+    .signature-label {
+      display: block;
+      margin-bottom: 8px;
+      color: var(--skill-muted);
+      font-size: 11px;
+      letter-spacing: 0.18em;
+      text-transform: uppercase;
+      font-weight: 800;
+    }
+
+    .signature-line {
+      width: min(220px, 100%);
+      height: 2px;
+      background: linear-gradient(90deg, transparent, var(--skill-gold), transparent);
+      margin: 0 auto 8px auto;
+    }
+
+    .signature-name {
+      font-size: 18px;
+      font-weight: 700;
+      color: var(--skill-navy);
+    }
+
+    .qr-box {
+      width: 120px;
+      height: 120px;
+      margin: 0 auto 8px auto;
+      padding: 8px;
+      border-radius: 12px;
+      background: white;
+      border: 3px solid rgba(212,175,55,0.80);
+      box-shadow: inset 0 0 0 1px rgba(10,37,64,0.06);
+    }
+
+    .qr-box img {
+      display: block;
+      width: 100%;
+      height: 100%;
+      object-fit: contain;
+    }
+
+    .verify-tag {
+      display: inline-block;
+      padding: 8px 12px;
+      border-radius: 999px;
+      background: rgba(15,76,129,0.06);
+      border: 1px solid rgba(15,76,129,0.10);
+      color: var(--skill-blue);
+      font-size: 11px;
+      letter-spacing: 0.12em;
+      text-transform: uppercase;
+      font-weight: 800;
+    }
+
+    .certificate-id {
+      margin-top: 22px;
+      color: var(--skill-muted);
+      font-size: 12px;
+      letter-spacing: 0.18em;
+      text-transform: uppercase;
+      font-weight: 800;
+    }
+
+    .footer-note {
+      margin-top: 18px;
+      color: var(--skill-muted);
+      font-size: 11px;
+      letter-spacing: 0.18em;
+      text-transform: uppercase;
+      font-weight: 800;
+    }
+
+    .actions {
+      display: flex;
+      justify-content: center;
+      gap: 14px;
+      margin-top: 28px;
+      flex-wrap: wrap;
+    }
+
+    .btn {
+      display: inline-flex;
+      align-items: center;
+      justify-content: center;
+      padding: 12px 20px;
+      border-radius: 999px;
+      text-decoration: none;
+      font-size: 12px;
+      font-weight: 800;
+      letter-spacing: 0.12em;
+      text-transform: uppercase;
+      transition: transform .15s ease, box-shadow .15s ease;
+      border: 1px solid rgba(15,76,129,0.18);
+      color: var(--skill-white);
+      background: linear-gradient(135deg, var(--skill-blue), var(--skill-navy));
+      box-shadow: 0 12px 28px rgba(15,76,129,0.18);
+    }
+
+    .btn.secondary {
+      background: linear-gradient(135deg, #f7f2e5, #f0e0ad);
+      color: var(--skill-navy);
+      border-color: rgba(212,175,55,0.36);
+    }
+
+    .btn:hover {
+      transform: translateY(-1px);
+    }
+
+    @media (max-width: 860px) {
+      body { padding: 18px; }
+      .certificate-shell { padding: 12px; }
+      .certificate-frame { padding: 20px 16px 24px; }
+      .meta-grid { grid-template-columns: 1fr; }
+      .bottom-row { flex-direction: column; align-items: center; }
+      .seal-wrap { width: 140px; height: 140px; }
+    }
+  </style>
+</head>
+<body>
+  <div class="certificate-shell">
+    <div class="certificate-frame">
+      <div class="certificate-topbar">
+        <div class="brand-tag">Skill Verse</div>
+        <div class="status-pill">Digitally Verified</div>
+      </div>
+
+      <div class="certificate-body">
+        <div class="seal-wrap">
+          <img src="{{ url_for('static', filename='skill-verse-seal.png') }}" alt="Skill Verse seal" />
+        </div>
+
+        <h1 class="title">Skill Verse</h1>
+        <p class="subtitle">Certificate of Completion</p>
+
+        <div class="certificate-content">
+          <h2 class="cert-h2">This is to certify that</h2>
+          <div class="student-name">{{ certificate.studentName }}</div>
+          <div class="divider"></div>
+          <p class="award-line">has successfully completed the course</p>
+          <div class="course-name">{{ certificate.courseName }}</div>
+        </div>
+
+        <div class="meta-grid">
+          <div class="meta-item">
+            <span class="meta-label">Completion Date</span>
+            <div class="meta-value">{{ certificate.completionDate }}</div>
+          </div>
+          <!-- Assessment (score) removed by request -->
+          <div class="meta-item">
+            <span class="meta-label">Duration</span>
+            <div class="meta-value">{{ certificate.courseDuration }}</div>
+          </div>
+        </div>
+
+        <div class="bottom-row">
+          <div class="signature-box">
+            <span class="signature-label">Instructor</span>
+            <div class="signature-line"></div>
+            <div class="signature-name">{{ certificate.instructorName }}</div>
+          </div>
+
+          <div class="verification-box">
+            <div class="qr-box">
+              <img src="{{ certificate.qrCodeDataUrl }}" alt="Verification QR Code" />
+            </div>
+            <div class="verify-tag">Verified</div>
+          </div>
+        </div>
+
+        <div class="certificate-id">Certificate ID: {{ certificate.certificateId }}</div>
+        <div class="footer-note">Skill Verse • Verified • Authentic • Certified</div>
+
+        <div class="actions">
+          <a class="btn" href="{{ url_for('student.download_certificate', course_id=course._id) }}">Download Certificate</a>
+          <a class="btn secondary" href="{{ url_for('student.dashboard') }}">Back to Dashboard</a>
+        </div>
+      </div>
+    </div>
+  </div>
+</body>
+</html>

@@ -1,0 +1,71 @@
+{% extends "base.html" %}
+{% from "nav_macros.html" import student_nav, admin_nav %}
+
+{% block sidebar_nav %}
+{% if is_admin is defined and is_admin %}
+  {{ admin_nav('leaderboard') }}
+{% else %}
+  {{ student_nav('leaderboard') }}
+{% endif %}
+{% endblock %}
+{% block page_title %}Leaderboard{% endblock %}
+{% block page_subtitle %}Top performing students on the platform{% endblock %}
+
+{% block content %}
+{% set current_id = session.get('user_id') %}
+{% set top = ranked[:3] if ranked else [] %}
+{% set podium = top %}
+{% if top|length == 3 %}
+  {% set podium = [top[1], top[0], top[2]] %}
+{% endif %}
+<div class="leaderboard-page">
+  <div class="leaderboard-container">
+    <div class="leaderboard-simple">
+      <div class="podium-wrap">
+        <div class="podium-center" role="list">
+          {% for u in podium %}
+          <div class="podium-item podium-{{ loop.index }}" role="listitem">
+            <div class="podium-info">
+              <div class="p-avatar">{{ u.name[0] }}</div>
+              <div class="p-meta">
+                <div class="p-name">{{ u.name }} <span class="medal">{% if loop.index == 1 %}🥇{% elif loop.index==2 %}🥈{% else %}🥉{% endif %}</span></div>
+                <div class="p-xp">{{ u.totalScore }} XP</div>
+                {% if current_id == u._id|string %}
+                <div class="you-badge small">You</div>
+                {% endif %}
+              </div>
+            </div>
+            <div class="podium-column" aria-hidden="true"></div>
+          </div>
+          {% endfor %}
+        </div>
+      </div>
+
+      <div class="leaderboard-card">
+        <div class="card-inner">
+          <div class="card-header">
+            <h3>Leaderboard</h3>
+          </div>
+          <div class="card-list">
+            {% if ranked|length > 3 %}
+              {% for student in ranked %}
+                {% if loop.index > 3 %}
+                <div class="card-row{% if current_id == student._id|string %} you-row{% endif %}">
+                  <div class="col rank">{{ loop.index }}</div>
+                  <div class="col avatar"><div class="row-avatar">{{ student.name[0] }}</div></div>
+                  <div class="col name">{{ student.name }}{% if current_id == student._id|string %} <span class="you-badge">You</span>{% endif %}</div>
+                  <div class="col xp">{{ student.totalScore }} XP</div>
+                </div>
+                {% endif %}
+              {% endfor %}
+            {% else %}
+              <div class="empty-state">No additional ranked learners.</div>
+            {% endif %}
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+{% endblock %}
+{% block scripts %}{% endblock %}

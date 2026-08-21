@@ -1,0 +1,65 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Skill Verse - Create Account</title>
+<link rel="stylesheet" href="{{ url_for('static', filename='css/main.css') }}">
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+</head>
+<body class="auth-body">
+<div class="auth-container">
+  <div class="auth-card" style="max-width:560px;">
+    <div class="auth-brand">
+      <div class="brand-icon-lg">🎓</div>
+      <div>
+        <div class="auth-brand-name">Skill Verse</div>
+        <div class="auth-brand-sub">Personalized Learning</div>
+      </div>
+    </div>
+
+    <h2 class="auth-title">Create your account</h2>
+    <p class="auth-subtitle">Start your personalized learning journey today</p>
+
+    {% with messages = get_flashed_messages(with_categories=true) %}
+      {% for cat, msg in messages %}
+        <div class="alert alert-{{ cat }}">{{ msg }}</div>
+      {% endfor %}
+    {% endwith %}
+
+    <form method="POST" action="{{ url_for('auth.register') }}">
+      <div class="form-row">
+        <div class="form-group">
+          <label class="form-label">Full Name *</label>
+          <input type="text" name="name" class="form-input" placeholder="Your name" required>
+        </div>
+        <div class="form-group">
+          <label class="form-label">Email Address *</label>
+          <input type="email" name="email" class="form-input" placeholder="you@example.com" required>
+        </div>
+      </div>
+      <div class="form-group">
+        <label class="form-label">Password *</label>
+        <input type="password" name="password" class="form-input" placeholder="Min. 6 characters" minlength="6" required>
+      </div>
+      <div class="form-group">
+        <label class="form-label">Interests <span class="label-hint">(helps us personalize)</span></label>
+        <input type="text" name="interests" class="form-input" placeholder="e.g. AI, Machine Learning, Web Development">
+      </div>
+      <div class="form-group">
+        <label class="form-label">Current Skills</label>
+        <input type="text" name="skills" class="form-input" placeholder="e.g. Python, JavaScript, SQL">
+      </div>
+      <div class="form-group">
+        <label class="form-label">Learning Goals</label>
+        <input type="text" name="goals" class="form-input" placeholder="e.g. Become a Data Scientist">
+      </div>
+      <button type="submit" class="btn-primary w-full">Create Account →</button>
+    </form>
+
+    <div class="auth-divider"><span>or</span></div>
+    <p class="auth-switch">Already have an account? <a href="{{ url_for('auth.login') }}">Sign in</a></p>
+  </div>
+</div>
+</body>
+</html>

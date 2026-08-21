@@ -1,0 +1,159 @@
+{% extends "base.html" %}
+{% from "nav_macros.html" import student_nav %}
+
+{% block sidebar_nav %}{{ student_nav('profile') }}{% endblock %}
+{% block page_title %}My Profile{% endblock %}
+{% block page_subtitle %}Shape your learning identity and preferences{% endblock %}
+
+{% block content %}
+{% set interests = (user.interests or '').split(',') if user.interests else [] %}
+{% set skills = (user.skills or '').split(',') if user.skills else [] %}
+{% set skill_items = skills if skills else ['Python', 'Product Thinking', 'Design Systems'] %}
+{% set interest_items = interests if interests else ['AI', 'Product Design', 'Learning Tech'] %}
+
+<div class="profile-shell">
+  <section class="profile-hero">
+    <div class="profile-hero-content">
+      <span class="hero-pill">✨ Learning profile</span>
+      <h2>{{ user.name }}</h2>
+      <p>{{ user.email }}</p>
+      <div class="hero-meta">
+        <span>🎓 {{ user.role.capitalize() }}</span>
+        <span>📅 Joined {{ user.joinedAt }}</span>
+      </div>
+      <div class="hero-actions">
+        <button type="button" class="btn-outline" id="photoTrigger">✎ Edit Photo</button>
+      </div>
+    </div>
+
+    <div class="profile-hero-side">
+      <div class="avatar-ring">
+        {% if user.profilePhoto %}
+        <img src="{{ url_for('static', filename=user.profilePhoto) }}" class="profile-avatar-large profile-avatar-image" alt="Profile photo">
+        {% else %}
+        <div class="profile-avatar-large">{{ user.name[0] if user.name else 'U' }}</div>
+        {% endif %}
+      </div>
+    </div>
+  </section>
+
+  <form method="POST" class="profile-form-grid" id="profileForm" enctype="multipart/form-data">
+    <input type="file" id="photoInput" name="photo" accept="image/*" hidden>
+    <div class="glass-card">
+      <div class="section-heading">
+        <div>
+          <h3>Personal Information</h3>
+          <p>Keep your profile clear and professional.</p>
+        </div>
+      </div>
+      <div class="field-group">
+        <input id="name" type="text" name="name" class="profile-input" value="{{ user.name }}" placeholder=" " required>
+        <label for="name">Full Name</label>
+      </div>
+      <div class="field-group">
+        <input id="email" type="email" class="profile-input" value="{{ user.email }}" placeholder=" " disabled>
+        <label for="email">Email Address</label>
+      </div>
+      <div class="field-group">
+        <input id="phone" type="text" name="phone" class="profile-input" value="{{ user.phone or '' }}" placeholder=" ">
+        <label for="phone">Phone Number</label>
+      </div>
+      <div class="field-group">
+        <textarea id="about" name="aboutMe" class="profile-input profile-textarea" placeholder=" ">{{ user.aboutMe or '' }}</textarea>
+        <label for="about">About Me</label>
+      </div>
+    </div>
+
+    <div class="glass-card">
+      <div class="section-heading">
+        <div>
+          <h3>Learning Profile</h3>
+          <p>Share what you want to learn and improve.</p>
+        </div>
+      </div>
+      <div class="field-group">
+        <input id="interests" type="text" name="interests" class="profile-input" value="{{ user.interests }}" placeholder=" ">
+        <label for="interests">Interests</label>
+      </div>
+      <div class="field-group">
+        <input id="skills" type="text" name="skills" class="profile-input" value="{{ user.skills }}" placeholder=" ">
+        <label for="skills">Current Skills</label>
+      </div>
+      <div class="field-group">
+        <textarea id="goals" name="goals" class="profile-input profile-textarea" placeholder=" ">{{ user.goals }}</textarea>
+        <label for="goals">Learning Goals</label>
+      </div>
+      <div class="field-group">
+        <select id="category" name="learningCategory" class="profile-input profile-select">
+          <option value="">Select a category</option>
+          <option value="AI" {% if user.learningCategory == 'AI' %}selected{% endif %}>AI</option>
+          <option value="Software Development" {% if user.learningCategory == 'Software Development' %}selected{% endif %}>Software Development</option>
+          <option value="Data Science" {% if user.learningCategory == 'Data Science' %}selected{% endif %}>Data Science</option>
+          <option value="Design" {% if user.learningCategory == 'Design' %}selected{% endif %}>Design</option>
+        </select>
+        <label for="category">Preferred Learning Category</label>
+      </div>
+    </div>
+
+    <div class="glass-card">
+      <div class="section-heading">
+        <div>
+          <h3>AI Preferences</h3>
+          <p>Fine-tune how the platform supports your growth.</p>
+        </div>
+      </div>
+      <div class="field-group">
+        <select id="difficulty" name="difficulty" class="profile-input profile-select">
+          <option value="Beginner" {% if user.difficulty == 'Beginner' %}selected{% endif %}>Beginner</option>
+          <option value="Intermediate" {% if user.difficulty == 'Intermediate' %}selected{% endif %}>Intermediate</option>
+          <option value="Advanced" {% if user.difficulty == 'Advanced' %}selected{% endif %}>Advanced</option>
+        </select>
+        <label for="difficulty">Learning Difficulty</label>
+      </div>
+      <div class="field-group">
+        <select id="style" name="learningStyle" class="profile-input profile-select">
+          <option value="Video" {% if user.learningStyle == 'Video' %}selected{% endif %}>Video</option>
+          <option value="Reading" {% if user.learningStyle == 'Reading' %}selected{% endif %}>Reading</option>
+          <option value="Practice" {% if user.learningStyle == 'Practice' %}selected{% endif %}>Practice</option>
+        </select>
+        <label for="style">Preferred Learning Style</label>
+      </div>
+      <div class="field-group">
+        <select id="goalTime" name="dailyGoal" class="profile-input profile-select">
+          <option value="30 min" {% if user.dailyGoal == '30 min' %}selected{% endif %}>30 min</option>
+          <option value="1 hour" {% if user.dailyGoal == '1 hour' %}selected{% endif %}>1 hour</option>
+          <option value="2 hours" {% if user.dailyGoal == '2 hours' %}selected{% endif %}>2 hours</option>
+        </select>
+        <label for="goalTime">Daily Learning Goal</label>
+      </div>
+    </div>
+
+    <div class="glass-card action-card">
+      <div class="form-actions">
+        <a href="{{ url_for('student.dashboard') }}" class="btn-outline">Cancel</a>
+        <button type="submit" class="btn-primary">Save Changes</button>
+      </div>
+    </div>
+  </form>
+</div>
+{% endblock %}
+
+{% block scripts %}
+<script>
+const photoTrigger = document.getElementById('photoTrigger');
+const photoInput = document.getElementById('photoInput');
+const profileForm = document.getElementById('profileForm');
+
+if (photoTrigger && photoInput) {
+  photoTrigger.addEventListener('click', () => photoInput.click());
+}
+
+if (photoInput && profileForm) {
+  photoInput.addEventListener('change', () => {
+    if (photoInput.files && photoInput.files.length > 0) {
+      profileForm.submit();
+    }
+  });
+}
+</script>
+{% endblock %}

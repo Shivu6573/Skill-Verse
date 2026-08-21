@@ -1,0 +1,75 @@
+{% extends "base.html" %}
+{% from "nav_macros.html" import admin_nav %}
+
+{% block sidebar_nav %}{{ admin_nav('all_courses') }}{% endblock %}
+{% block page_title %}Learning Courses{% endblock %}
+{% block page_subtitle %}{{ courses|length }} courses available{% endblock %}
+
+{% block content %}
+<div class="card" style="margin-bottom:1.5rem;">
+  <div class="filter-bar">
+    <input type="text" id="searchInput" class="form-input" placeholder="Search courses..." style="flex:1">
+    <select id="categoryFilter" class="form-select">
+      <option value="">All Categories</option>
+      <option>AI</option><option>Data Science</option>
+      <option>Machine Learning</option><option>Web Development</option>
+    </select>
+    <select id="diffFilter" class="form-select">
+      <option value="">All Levels</option>
+      <option>Beginner</option><option>Intermediate</option><option>Advanced</option>
+    </select>
+    <button onclick="filterCourses()" class="btn-primary">Filter</button>
+    <button onclick="resetFilters()" class="btn-outline">Reset</button>
+  </div>
+</div>
+
+<div class="courses-grid" id="coursesGrid">
+  {% for course in courses %}
+  <div class="course-card" data-cat="{{ course.category }}" data-diff="{{ course.difficulty }}" data-title="{{ course.title|lower }}">
+    <div class="course-card-img {{ 'bg-ds' if course.category=='Data Science' else ('bg-ai' if course.category=='AI' else ('bg-ml' if course.category=='Machine Learning' else 'bg-web')) }}">
+      <div class="course-emoji">{{ '📊' if course.category=='Data Science' else ('🤖' if course.category=='AI' else ('🧠' if course.category=='Machine Learning' else '💻')) }}</div>
+      <span class="diff-badge diff-{{ course.difficulty|lower }}">{{ course.difficulty }}</span>
+    </div>
+    <div class="course-card-body">
+      <div class="course-cat-tag">{{ course.category }}</div>
+      <h3 class="course-card-title">{{ course.title }}</h3>
+      <p class="course-card-desc">{{ course.description }}</p>
+      <div class="course-card-meta">
+        <span>⏱ {{ course.duration }}</span>
+        <span>📅 {{ course.createdAt }}</span>
+      </div>
+      <div class="course-card-actions">
+        <a href="#" class="btn-primary btn-sm">Enroll</a>
+        <span class="btn-icon">🏷️</span>
+        {% if course.youtubeId %}
+        <a href="#" class="btn-sm btn-outline" onclick="window.open('https://www.youtube.com/watch?v={{ course.youtubeId }}', '_blank'); return false;">▶ Watch</a>
+        {% elif course.youtubeUrl or course.contentUrl %}
+        <a href="#" class="btn-sm btn-outline" onclick="window.open('{{ course.youtubeUrl or course.contentUrl }}', '_blank'); return false;">▶ Watch</a>
+        {% else %}
+        <span class="btn-sm btn-outline" aria-disabled="true" title="Coming Soon">▶ Coming Soon</span>
+        {% endif %}
+      </div>
+    </div>
+  </div>
+  {% endfor %}
+</div>
+{% endblock %}
+
+{% block scripts %}
+<script>
+function filterCourses() {
+  const s = document.getElementById('searchInput').value.toLowerCase();
+  const cat = document.getElementById('categoryFilter').value;
+  const diff = document.getElementById('diffFilter').value;
+  document.querySelectorAll('.course-card').forEach(c => {
+    c.style.display = (!s||c.dataset.title.includes(s))&&(!cat||c.dataset.cat===cat)&&(!diff||c.dataset.diff===diff)?'':'none';
+  });
+}
+function resetFilters() {
+  document.getElementById('searchInput').value='';
+  document.getElementById('categoryFilter').value='';
+  document.getElementById('diffFilter').value='';
+  document.querySelectorAll('.course-card').forEach(c=>c.style.display='');
+}
+</script>
+{% endblock %}

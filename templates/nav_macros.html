@@ -1,0 +1,55 @@
+{% macro student_nav(active='') %}
+<div class="nav-section-label">MAIN</div>
+<a href="{{ url_for('student.dashboard') }}" class="nav-link {% if active=='dashboard' %}active{% endif %}">
+  🏠 Dashboard
+</a>
+<a href="{{ url_for('student.courses') }}" class="nav-link {% if active=='courses' %}active{% endif %}">
+  📚 Courses
+</a>
+<a href="{{ url_for('student.recommend') }}" class="nav-link {% if active=='recommend' %}active{% endif %}">
+  ✨ AI Recommendations
+</a>
+<a href="{{ url_for('student.quiz_list') }}" class="nav-link {% if active=='quiz' %}active{% endif %}">
+  📝 Quizzes
+</a>
+<a href="{{ url_for('student.certificates') }}" class="nav-link {% if active=='certificates' %}active{% endif %}">
+  🎖️ Certificates
+</a>
+<div class="nav-section-label">TOOLS</div>
+<a href="{{ url_for('student.chatbot') }}" class="nav-link {% if active=='chatbot' %}active{% endif %}">
+  🤖 AI Chatbot
+</a>
+<a href="{{ url_for('student.leaderboard') }}" class="nav-link {% if active=='leaderboard' %}active{% endif %}">
+  🏆 Leaderboard
+</a>
+<a href="{{ url_for('student.feedback') }}" class="nav-link {% if active=='feedback' %}active{% endif %}">
+  💬 Feedback
+</a>
+<div class="nav-section-label">ACCOUNT</div>
+<a href="{{ url_for('student.profile') }}" class="nav-link {% if active=='profile' %}active{% endif %}">
+  👤 My Profile
+</a>
+{% endmacro %}
+
+{% macro admin_nav(active='') %}
+<div class="nav-section-label">ADMIN PANEL</div>
+<a href="{{ url_for('admin.dashboard') }}" class="nav-link {% if active=='dashboard' %}active{% endif %}">
+  🏠 Dashboard
+</a>
+<a href="{{ url_for('admin.manage_users') }}" class="nav-link {% if active=='users' %}active{% endif %}">
+  👥 Manage Users
+</a>
+<a href="{{ url_for('admin.manage_courses') }}" class="nav-link {% if active=='courses' %}active{% endif %}">
+  📚 Manage Courses
+</a>
+<a href="{{ url_for('admin.manage_quizzes') }}" class="nav-link {% if active=='quizzes' %}active{% endif %}">
+  📝 Manage Quizzes
+</a>
+<div class="nav-section-label">CONTENT</div>
+<a href="{{ url_for('admin.all_courses') }}" class="nav-link {% if active=='all_courses' %}active{% endif %}">
+  🌐 All Courses
+</a>
+<a href="{{ url_for('admin.leaderboard') }}" class="nav-link {% if active=='leaderboard' %}active{% endif %}">
+  🏆 Leaderboard
+</a>
+{% endmacro %}

@@ -1,0 +1,48 @@
+{% extends "base.html" %}
+{% from "nav_macros.html" import admin_nav %}
+
+{% block sidebar_nav %}{{ admin_nav('users') }}{% endblock %}
+{% block page_title %}Manage Students{% endblock %}
+{% block page_subtitle %}View, monitor and manage all registered students{% endblock %}
+{% block header_right %}<a href="{{ url_for('admin.dashboard') }}" class="btn-outline">← Back</a>{% endblock %}
+
+{% block content %}
+<div class="card">
+  <div class="card-header-row" style="margin-bottom:1.5rem;">
+    <div>
+      <h3 style="margin:0">All Students</h3>
+      <p style="color:#64748b;margin:.25rem 0 0;font-size:.9rem">{{ students|length }} registered students</p>
+    </div>
+  </div>
+  <table class="admin-table">
+    <thead>
+      <tr><th>#</th><th>STUDENT</th><th>INTERESTS</th><th>COURSES</th><th>TOTAL SCORE</th><th>JOINED</th><th>ACTION</th></tr>
+    </thead>
+    <tbody>
+      {% for s in students %}
+      <tr>
+        <td style="color:#64748b">{{ loop.index }}</td>
+        <td>
+          <div style="display:flex;align-items:center;gap:.75rem;">
+            <div class="user-avatar-sm">{{ s.name[0] }}</div>
+            <div>
+              <div style="font-weight:500">{{ s.name }}</div>
+              <div style="font-size:.8rem;color:#64748b">{{ s.email }}</div>
+            </div>
+          </div>
+        </td>
+        <td style="font-size:.85rem;color:#94a3b8;max-width:200px">{{ s.interests or '—' }}</td>
+        <td><span class="badge-num">{{ s.enrolledCourses|length }}</span></td>
+        <td><span class="badge-pts">{{ s.totalScore }} pts</span></td>
+        <td style="font-size:.85rem;color:#64748b">{{ s.joinedAt }}</td>
+        <td>
+          <form method="POST" action="{{ url_for('admin.delete_user', user_id=s._id) }}" onsubmit="return confirm('Delete this student?')">
+            <button type="submit" class="btn-danger btn-sm">🗑 Delete</button>
+          </form>
+        </td>
+      </tr>
+      {% endfor %}
+    </tbody>
+  </table>
+</div>
+{% endblock %}

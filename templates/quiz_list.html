@@ -1,0 +1,36 @@
+{% extends "base.html" %}
+{% from "nav_macros.html" import student_nav %}
+
+{% block sidebar_nav %}{{ student_nav('quiz') }}{% endblock %}
+{% block page_title %}Quiz Center{% endblock %}
+{% block page_subtitle %}Test your knowledge and improve your recommendations{% endblock %}
+
+{% block content %}
+<div class="courses-grid" style="grid-template-columns:repeat(auto-fill,minmax(280px,1fr))">
+  {% for quiz in quizzes %}
+  <div class="course-card">
+    <div class="course-card-img {{ 'bg-ai' if quiz.category=='AI' else ('bg-web' if quiz.category=='Web Development' else 'bg-ds') }}">
+      <div class="course-emoji">{{ '🤖' if quiz.category=='AI' else ('💻' if quiz.category=='Web Development' else '📊') }}</div>
+    </div>
+    <div class="course-card-body">
+      <div class="course-cat-tag">{{ quiz.category }}</div>
+      <h3 class="course-card-title">{{ quiz.title }}</h3>
+      <p class="course-card-desc">Test your knowledge in {{ quiz.category }}. Your score directly influences your personalized course recommendations.</p>
+      <div class="course-card-meta">
+        <span>📅 {{ quiz.createdAt }}</span>
+        {% if quiz._id|string in attempted %}
+        <span class="badge-attempted">✓ Attempted</span>
+        {% endif %}
+      </div>
+      <div class="course-card-actions">
+        {% if quiz._id|string in attempted %}
+        <a href="{{ url_for('student.take_quiz', quiz_id=quiz._id) }}" class="btn-primary btn-sm">Retake Quiz</a>
+        {% else %}
+        <a href="{{ url_for('student.take_quiz', quiz_id=quiz._id) }}" class="btn-primary btn-sm">Start Quiz</a>
+        {% endif %}
+      </div>
+    </div>
+  </div>
+  {% endfor %}
+</div>
+{% endblock %}

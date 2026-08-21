@@ -1,0 +1,88 @@
+{% extends "base.html" %}
+{% from "nav_macros.html" import admin_nav %}
+
+{% block sidebar_nav %}{{ admin_nav('courses') }}{% endblock %}
+{% block page_title %}Manage Courses{% endblock %}
+{% block page_subtitle %}Add, edit and delete learning content{% endblock %}
+
+{% block content %}
+<!-- Add Course Form -->
+<div class="card" style="margin-bottom:1.5rem;">
+  <h3 style="margin:0 0 1.5rem">➕ Add New Course</h3>
+  <form method="POST">
+    <div class="form-row">
+      <div class="form-group" style="flex:2">
+        <label class="form-label">Course Title *</label>
+        <input type="text" name="title" class="form-input" placeholder="e.g. Advanced Python for AI" required>
+      </div>
+      <div class="form-group">
+        <label class="form-label">Category *</label>
+        <select name="category" class="form-select" required>
+          <option>AI</option><option>Data Science</option>
+          <option>Machine Learning</option><option>Web Development</option>
+        </select>
+      </div>
+    </div>
+    <div class="form-row">
+      <div class="form-group">
+        <label class="form-label">Difficulty</label>
+        <select name="difficulty" class="form-select">
+          <option>Beginner</option><option>Intermediate</option><option>Advanced</option>
+        </select>
+      </div>
+      <div class="form-group">
+        <label class="form-label">Duration</label>
+        <input type="text" name="duration" class="form-input" placeholder="e.g. 2 hours" value="2 hours">
+      </div>
+    </div>
+    <div class="form-group">
+      <label class="form-label">Description</label>
+      <textarea name="description" class="form-input" rows="3" placeholder="Brief description of the course..."></textarea>
+    </div>
+    <div class="form-group">
+      <label class="form-label">YouTube Video ID</label>
+      <input type="text" name="content_url" class="form-input" placeholder="e.g. rfscVS0vtbw">
+    </div>
+    <button type="submit" class="btn-primary">Add Course</button>
+  </form>
+</div>
+
+<!-- Courses List -->
+<div class="card">
+  <div class="card-header-row" style="margin-bottom:1rem;">
+    <div>
+      <h3 style="margin:0">All Courses</h3>
+      <p style="color:#64748b;margin:.25rem 0 0;font-size:.9rem">{{ courses|length }} courses total</p>
+    </div>
+  </div>
+  <table class="admin-table">
+    <thead>
+      <tr><th>TITLE</th><th>CATEGORY</th><th>DIFFICULTY</th><th>DURATION</th><th>ADDED</th><th>ACTION</th></tr>
+    </thead>
+    <tbody>
+      {% for c in courses %}
+      <tr>
+        <td>
+          <div style="font-weight:500">{{ c.title }}</div>
+          <div style="font-size:.8rem;color:#64748b">{{ c.description[:50] }}...</div>
+        </td>
+        <td><span class="cat-badge">{{ c.category }}</span></td>
+        <td><span class="diff-pill diff-{{ c.difficulty|lower }}">{{ c.difficulty }}</span></td>
+        <td style="color:#94a3b8">{{ c.duration }}</td>
+        <td style="color:#64748b;font-size:.85rem">{{ c.createdAt }}</td>
+        <td style="display:flex;gap:.5rem;align-items:center;">
+          <form method="POST" action="{{ url_for('admin.delete_course', course_id=c._id) }}" onsubmit="return confirm('Delete this course?')">
+            <button type="submit" class="btn-danger btn-sm">🗑</button>
+          </form>
+          {% if c.youtubeId %}
+          <a href="https://www.youtube.com/watch?v={{ c.youtubeId }}" target="_blank" class="btn-icon">▶</a>
+          {% elif c.contentUrl or c.youtubeUrl %}
+          <a href="{{ c.contentUrl or c.youtubeUrl }}" target="_blank" class="btn-icon">▶</a>
+          {% endif %}
+        </td>
+      </tr>
+      {% endfor %}
+    </tbody>
+  </table>
+</div>
+{% endblock %}

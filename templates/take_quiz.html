@@ -1,0 +1,31 @@
+{% extends "base.html" %}
+{% from "nav_macros.html" import student_nav %}
+
+{% block sidebar_nav %}{{ student_nav('quiz') }}{% endblock %}
+{% block page_title %}{{ quiz.title }}{% endblock %}
+{% block page_subtitle %}{{ quiz.category }} · {{ quiz.questions|length }} Questions{% endblock %}
+
+{% block content %}
+<div class="card" style="max-width:700px;margin:0 auto;">
+  <form method="POST">
+    {% for i, q in quiz.questions | enumerate %}
+    <div class="quiz-question-block">
+      <div class="quiz-q-num">Question {{ i+1 }} of {{ quiz.questions|length }}</div>
+      <div class="quiz-q-text">{{ q.question }}</div>
+      <div class="quiz-options">
+        {% for j, opt in q.options | enumerate %}
+        <label class="quiz-option">
+          <input type="radio" name="q{{ i }}" value="{{ j }}" required>
+          <span class="option-text">{{ opt }}</span>
+        </label>
+        {% endfor %}
+      </div>
+    </div>
+    {% endfor %}
+    <div style="display:flex;gap:1rem;margin-top:2rem;">
+      <a href="{{ url_for('student.quiz_list') }}" class="btn-outline">Cancel</a>
+      <button type="submit" class="btn-primary" style="flex:1">Submit Quiz →</button>
+    </div>
+  </form>
+</div>
+{% endblock %}

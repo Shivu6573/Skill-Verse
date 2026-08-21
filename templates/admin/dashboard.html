@@ -1,0 +1,109 @@
+{% extends "base.html" %}
+{% from "nav_macros.html" import admin_nav %}
+
+{% block sidebar_nav %}{{ admin_nav('dashboard') }}{% endblock %}
+{% block page_title %}Admin Dashboard{% endblock %}
+{% block page_subtitle %}Platform overview and management{% endblock %}
+
+{% block content %}
+<!-- Stats -->
+<div class="stats-grid">
+  <div class="stat-card">
+    <div class="stat-icon">👥</div>
+    <div class="stat-num">{{ students|length }}</div>
+    <div class="stat-label">Total Students</div>
+  </div>
+  <div class="stat-card">
+    <div class="stat-icon">📚</div>
+    <div class="stat-num">{{ courses|length }}</div>
+    <div class="stat-label">Courses</div>
+  </div>
+  <div class="stat-card">
+    <div class="stat-icon">📝</div>
+    <div class="stat-num">{{ quizzes|length }}</div>
+    <div class="stat-label">Quizzes</div>
+  </div>
+  <div class="stat-card">
+    <div class="stat-icon">💬</div>
+    <div class="stat-num">{{ feedback|length }}</div>
+    <div class="stat-label">Feedback Items</div>
+  </div>
+</div>
+
+<!-- Quick Actions -->
+<div class="card" style="margin-bottom:1.5rem;">
+  <h3 style="margin:0 0 1rem">Quick Actions</h3>
+  <div style="display:flex;gap:.75rem;flex-wrap:wrap;">
+    <a href="{{ url_for('admin.manage_users') }}" class="btn-primary">👥 Manage Users</a>
+    <a href="{{ url_for('admin.manage_courses') }}" class="btn-outline">📚 Manage Courses</a>
+    <a href="{{ url_for('admin.manage_quizzes') }}" class="btn-outline">📝 Manage Quizzes</a>
+    <a href="{{ url_for('admin.leaderboard') }}" class="btn-outline">🏆 Leaderboard</a>
+  </div>
+</div>
+
+<div class="two-col-grid">
+  <!-- Recent Students -->
+  <div class="card">
+    <div class="card-header-row">
+      <h3>Recent Students</h3>
+      <a href="{{ url_for('admin.manage_users') }}" class="link-btn">View All</a>
+    </div>
+    <table class="admin-table">
+      <thead><tr><th>NAME</th><th>COURSES</th><th>SCORE</th><th>JOINED</th></tr></thead>
+      <tbody>
+        {% for s in students %}
+        <tr>
+          <td>
+            <div style="display:flex;align-items:center;gap:.75rem;">
+              <div class="user-avatar-sm">{{ s.name[0] }}</div>
+              <div>
+                <div style="font-weight:500">{{ s.name }}</div>
+                <div style="font-size:.8rem;color:#64748b">{{ s.email }}</div>
+              </div>
+            </div>
+          </td>
+          <td><span class="badge-num">{{ s.enrolledCourses|length }}</span></td>
+          <td><span class="badge-pts">{{ s.totalScore }} pts</span></td>
+          <td style="color:#64748b;font-size:.85rem">{{ s.joinedAt }}</td>
+        </tr>
+        {% endfor %}
+      </tbody>
+    </table>
+  </div>
+
+  <!-- Course Categories -->
+  <div class="card">
+    <h3 style="margin:0 0 1.5rem">Course Categories</h3>
+    {% set cat_colors = {'AI':'#6366f1','Data Science':'#10b981','Machine Learning':'#f59e0b','Web Development':'#3b82f6'} %}
+    {% for item in by_category %}
+    <div class="cat-bar-row">
+      <div class="cat-icon">{{ '🤖' if item._id=='AI' else ('📊' if item._id=='Data Science' else ('🧠' if item._id=='Machine Learning' else '💻')) }}</div>
+      <div style="flex:1">
+        <div style="display:flex;justify-content:space-between;margin-bottom:.3rem;">
+          <span style="font-weight:500">{{ item._id }}</span>
+          <span style="color:#64748b;font-size:.85rem">{{ item.count }} courses</span>
+        </div>
+        <div class="cat-bar-bg">
+          <div class="cat-bar-fill" style="width:{{ (item.count / 12 * 100)|int }}%;background:{{ cat_colors.get(item._id,'#6366f1') }}"></div>
+        </div>
+      </div>
+    </div>
+    {% endfor %}
+  </div>
+</div>
+
+<!-- Recent Feedback -->
+<div class="card">
+  <h3 style="margin:0 0 1rem">Recent Feedback</h3>
+  {% if feedback %}
+    {% for fb in feedback %}
+    <div style="padding:.75rem 0;border-bottom:1px solid #1e293b;">
+      <strong>{{ fb.userName }}</strong> – {{ '★' * fb.rating }}<br>
+      <span style="color:#94a3b8">{{ fb.text }}</span>
+    </div>
+    {% endfor %}
+  {% else %}
+  <div class="empty-state">No feedback submitted yet.</div>
+  {% endif %}
+</div>
+{% endblock %}

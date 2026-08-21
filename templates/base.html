@@ -1,0 +1,59 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Skill Verse - Personalized Learning</title>
+<link rel="stylesheet" href="{{ url_for('static', filename='css/main.css') }}">
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+</head>
+<body>
+{% block body %}
+<div class="app-layout">
+  <!-- Sidebar -->
+  <aside class="sidebar">
+    <div class="sidebar-brand">
+      <div class="brand-icon">🎓</div>
+      <div>
+        <div class="brand-name">Skill Verse</div>
+        <div class="brand-sub">Learning Platform</div>
+      </div>
+    </div>
+
+    <div class="user-info">
+      <div class="user-avatar">{{ user.name[0] if user else 'U' }}</div>
+      <div>
+        <div class="user-name">{{ user.name if user else 'User' }}</div>
+        <div class="user-role">{{ user.role.upper() if user else 'STUDENT' }}</div>
+      </div>
+    </div>
+
+    <nav class="sidebar-nav">
+      {% block sidebar_nav %}{% endblock %}
+    </nav>
+
+    <a href="{{ url_for('auth.logout') }}" class="logout-btn">🔴 Logout</a>
+  </aside>
+
+  <!-- Main Content -->
+  <main class="main-content">
+    <div class="page-header">
+      <div>
+        <h1 class="page-title">{% block page_title %}{% endblock %}</h1>
+        <p class="page-sub">{% block page_subtitle %}{% endblock %}</p>
+      </div>
+      <div class="header-right">
+        {% block header_right %}{% endblock %}
+      </div>
+    </div>
+    <div class="page-body">
+      {% block content %}{% endblock %}
+    </div>
+  </main>
+</div>
+{% endblock %}
+
+<script src="{{ url_for('static', filename='js/main.js') }}"></script>
+{% block scripts %}{% endblock %}
+</body>
+</html>

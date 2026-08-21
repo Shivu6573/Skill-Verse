@@ -1,0 +1,201 @@
+{% extends "base.html" %}
+{% from "nav_macros.html" import student_nav %}
+
+{% block sidebar_nav %}{{ student_nav('dashboard') }}{% endblock %}
+{% block page_title %}Dashboard{% endblock %}
+{% block page_subtitle %}Welcome back, {{ user.name }}{% endblock %}
+{% block header_right %}
+<div class="dashboard-header-actions">
+  <button class="btn-outline">👤 {{ user.name.split()[0] if user.name else 'You' }}</button>
+</div>
+{% endblock %}
+
+{% block content %}
+{% set overall_progress = (completed_ids|length / enrolled_courses|length * 100) if enrolled_courses else 0 %}
+<div class="dashboard-shell">
+  <section class="dashboard-topbar">
+    <div>
+      <h2 class="dashboard-title">Learning Dashboard</h2>
+      <p class="dashboard-subtitle">A focused view of your current learning progress.</p>
+    </div>
+    <a href="{{ url_for('student.courses') }}" class="btn-primary">Browse Courses</a>
+  </section>
+
+  <section class="stats-grid">
+    <div class="stat-card">
+      <div class="stat-icon">📚</div>
+      <div>
+        <div class="stat-num" data-counter="{{ enrolled_courses|length }}">0</div>
+        <div class="stat-label">Enrolled Courses</div>
+      </div>
+    </div>
+    <div class="stat-card">
+      <div class="stat-icon">✅</div>
+      <div>
+        <div class="stat-num" data-counter="{{ completed_ids|length }}">0</div>
+        <div class="stat-label">Completed Courses</div>
+      </div>
+    </div>
+    <div class="stat-card">
+      <div class="stat-icon">📝</div>
+      <div>
+        <div class="stat-num" data-counter="{{ quiz_scores|length }}">0</div>
+        <div class="stat-label">Quizzes Taken</div>
+      </div>
+    </div>
+    <div class="stat-card">
+      <div class="stat-icon">📈</div>
+      <div>
+        <div class="stat-num" data-counter="{{ overall_progress|round|int }}">0</div>
+        <div class="stat-label">Overall Progress (%)</div>
+      </div>
+    </div>
+  </section>
+
+  <section class="dashboard-grid dashboard-grid-2">
+    <div class="glass-card">
+      <div class="card-header-row">
+        <div>
+          <h3>Learning Progress</h3>
+          <p class="card-sub">Completion trend across your enrolled courses</p>
+        </div>
+      </div>
+      <canvas id="progressChart" height="220"></canvas>
+    </div>
+
+    <div class="glass-card">
+      <div class="card-header-row">
+        <div>
+          <h3>Continue Learning</h3>
+          <p class="card-sub">Pick up where you left off</p>
+        </div>
+      </div>
+      {% if enrolled_courses %}
+      <div class="course-list">
+        {% for course in enrolled_courses[:4] %}
+        <div class="learning-item">
+          <div class="learning-thumb">📘</div>
+          <div class="learning-body">
+            <div class="learning-title-row">
+              <strong>{{ course.title }}</strong>
+              <span class="chip">{{ course.category }}</span>
+            </div>
+            <div class="learning-meta">{{ course.duration }} · {{ course.difficulty }}</div>
+            <div class="progress-bar"><div style="width: {{ 55 + loop.index0 * 10 }}%"></div></div>
+            <div class="learning-footer">
+              <span>{{ 55 + loop.index0 * 10 }}% complete</span>
+              <a href="{{ url_for('student.courses') }}" class="link-btn">Resume</a>
+            </div>
+          </div>
+        </div>
+        {% endfor %}
+      </div>
+      {% else %}
+      <div class="empty-state">No enrolled courses yet.</div>
+      {% endif %}
+    </div>
+  </section>
+
+  {% if quiz_scores %}
+  <section class="glass-card">
+    <div class="card-header-row">
+      <div>
+        <h3>Recent Quiz Results</h3>
+        <p class="card-sub">Latest quiz performance</p>
+      </div>
+      <a href="{{ url_for('student.quiz_list') }}" class="link-btn">View All</a>
+    </div>
+    <div class="quiz-list">
+      {% for qs in quiz_scores[-3:] %}
+      <div class="quiz-row">
+        <div>
+          <div class="quiz-title">{{ qs.title }}</div>
+          <div class="quiz-meta">{{ qs.correct }}/{{ qs.total }} correct</div>
+        </div>
+        <div class="quiz-score-pill {{ 'score-good' if qs.score >= 75 else 'score-mid' if qs.score >= 50 else 'score-bad' }}">{{ qs.score }}%</div>
+      </div>
+      {% endfor %}
+    </div>
+  </section>
+  {% endif %}
+  {% if certificates %}
+  <section class="glass-card">
+    <div class="card-header-row">
+      <div>
+        <h3>Certificates</h3>
+        <p class="card-sub">Your recently earned certificates</p>
+      </div>
+      <a href="{{ url_for('student.certificates') }}" class="link-btn">View All</a>
+    </div>
+    <div class="certificate-list">
+      {% for c in certificates[:3] %}
+      <div class="certificate-row">
+        <div>
+          <div class="certificate-title"><strong>{{ c.courseTitle }}</strong></div>
+          <div class="certificate-meta">Issued: {{ c.issueDate }}</div>
+        </div>
+        <div>
+          <a href="{{ c.viewUrl }}" class="link-btn">View</a>
+          <a href="{{ c.downloadUrl }}" class="btn-outline">Download</a>
+        </div>
+      </div>
+      {% endfor %}
+    </div>
+  </section>
+  {% endif %}
+</div>
+{% endblock %}
+
+{% block scripts %}
+<script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+<script>
+const enrolledCourses = {{ enrolled_courses | tojson }};
+const quizData = {{ quiz_scores | tojson }};
+
+function animateCounters() {
+  document.querySelectorAll('[data-counter]').forEach((el) => {
+    const target = parseInt(el.getAttribute('data-counter'), 10) || 0;
+    let current = 0;
+    const step = Math.max(1, Math.round(target / 16));
+    const timer = setInterval(() => {
+      current += step;
+      if (current >= target) {
+        el.textContent = target;
+        clearInterval(timer);
+      } else {
+        el.textContent = current;
+      }
+    }, 35);
+  });
+}
+
+if (document.getElementById('progressChart')) {
+  const labels = enrolledCourses.length ? enrolledCourses.map((_, i) => `Course ${i + 1}`) : ['No data'];
+  const data = enrolledCourses.length ? enrolledCourses.map((_, i) => 45 + (i % 4) * 12) : [0];
+  new Chart(document.getElementById('progressChart'), {
+    type: 'line',
+    data: {
+      labels: labels,
+      datasets: [{
+        label: 'Completion',
+        data: data,
+        borderColor: '#6366f1',
+        backgroundColor: 'rgba(99,102,241,0.18)',
+        fill: true,
+        tension: 0.35,
+        pointRadius: 0
+      }]
+    },
+    options: {
+      plugins: { legend: { display: false } },
+      scales: {
+        y: { beginAtZero: true, max: 100, ticks: { color: '#94a3b8' }, grid: { color: 'rgba(255,255,255,0.08)' } },
+        x: { ticks: { color: '#94a3b8' } }
+      }
+    }
+  });
+}
+
+window.addEventListener('load', animateCounters);
+</script>
+{% endblock %}

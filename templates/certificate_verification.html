@@ -1,0 +1,120 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Certificate Verification</title>
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800;900&display=swap" rel="stylesheet">
+  <style>
+    :root {
+      --skill-blue: #0F4C81;
+      --skill-navy: #0A2540;
+      --skill-gold: #D4AF37;
+      --skill-white: #FFFFFF;
+      --skill-muted: #4E5F74;
+    }
+    * { box-sizing: border-box; }
+    body {
+      margin: 0;
+      min-height: 100vh;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      padding: 36px;
+      font-family: 'Inter', sans-serif;
+      background: linear-gradient(135deg, #edf4fb, #f8f3ea);
+      color: var(--skill-navy);
+    }
+    .card {
+      width: min(760px, 100%);
+      background: rgba(255,255,255,0.9);
+      border: 2px solid rgba(212,175,55,0.8);
+      border-radius: 24px;
+      box-shadow: 0 22px 60px rgba(10,37,64,0.14);
+      padding: 32px 28px;
+      text-align: center;
+    }
+    .badge {
+      display: inline-flex;
+      width: 72px;
+      height: 72px;
+      border-radius: 50%;
+      align-items: center;
+      justify-content: center;
+      margin-bottom: 12px;
+      background: linear-gradient(135deg, var(--skill-blue), var(--skill-navy));
+      color: white;
+      font-size: 28px;
+      border: 4px solid var(--skill-gold);
+    }
+    h1 {
+      margin: 0 0 10px;
+      font-size: clamp(28px, 4vw, 48px);
+      letter-spacing: 0.06em;
+      text-transform: uppercase;
+      color: var(--skill-navy);
+    }
+    .status {
+      margin: 0 0 12px;
+      font-size: 13px;
+      letter-spacing: 0.16em;
+      text-transform: uppercase;
+      color: var(--skill-gold);
+      font-weight: 800;
+    }
+    .message {
+      font-size: 18px;
+      line-height: 1.7;
+      color: var(--skill-muted);
+      margin: 0 0 18px;
+    }
+    .cert-id {
+      display: inline-block;
+      background: rgba(15,76,129,0.06);
+      border: 1px solid rgba(15,76,129,0.15);
+      border-radius: 999px;
+      padding: 10px 16px;
+      font-size: 14px;
+      letter-spacing: 0.12em;
+      text-transform: uppercase;
+      font-weight: 700;
+      color: var(--skill-blue);
+    }
+    .actions {
+      margin-top: 24px;
+    }
+    .btn {
+      display: inline-block;
+      padding: 12px 20px;
+      border-radius: 999px;
+      text-decoration: none;
+      font-weight: 700;
+      letter-spacing: 0.06em;
+      text-transform: uppercase;
+      border: 1px solid rgba(15,76,129,0.15);
+      background: var(--skill-blue);
+      color: var(--skill-white);
+    }
+  </style>
+</head>
+<body>
+  <div class="card">
+    <div class="badge">✓</div>
+    <div class="status">Certificate Verification</div>
+    <h1>Verification Result</h1>
+    {% if found %}
+      <p class="message">This certificate record has been verified and is authentic.</p>
+      <div class="cert-id">ID: {{ certificate_id }}</div>
+      <div class="actions">
+        <a class="btn" href="{{ url_for('student.certificate', course_id=course_id) }}">View certificate</a>
+      </div>
+    {% else %}
+      <p class="message">We could not find a valid certificate matching this reference.</p>
+      <div class="cert-id">Reference: {{ certificate_id }}</div>
+      <div class="actions">
+        <a class="btn" href="{{ url_for('student.dashboard') }}">Return to dashboard</a>
+      </div>
+    {% endif %}
+  </div>
+</body>
+</html>
