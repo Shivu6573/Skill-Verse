@@ -280,7 +280,7 @@ def _build_gemini_prompt(profile):
 def _call_gemini_api(prompt):
     # Use only GEMINI_API_KEY for recommendations per requirements
     api_key = os.getenv("GEMINI_API_KEY")
-    model = os.getenv("GEMINI_MODEL", "gemini-2.5-flash")
+    model = os.getenv("GEMINI_MODEL") or "gemini-2.5-flash"
     if not api_key:
         current_app.logger.error("Gemini API key not set (GEMINI_API_KEY)")
         raise RuntimeError("Gemini API key not configured on server (GEMINI_API_KEY)")
@@ -888,7 +888,7 @@ def download_certificate(course_id):
     pdf = canvas.Canvas(pdf_buffer, pagesize=A4)
     width, height = A4
 
-    seal_path = os.path.join(current_app.root_path, "static", "skill-verse-seal.png")
+    seal_path = os.path.join(current_app.static_folder, "images", "skill-verse-seal.png")
     if os.path.exists(seal_path):
         pdf.drawImage(seal_path, 180, 260, width=260, height=260, preserveAspectRatio=True)
 
@@ -1135,7 +1135,7 @@ def profile():
 
         photo = request.files.get("photo")
         if photo and photo.filename:
-            upload_folder = os.path.join(current_app.root_path, "static", "uploads")
+            upload_folder = os.path.join(current_app.static_folder, "uploads")
             os.makedirs(upload_folder, exist_ok=True)
             filename = secure_filename(f"{session['user_id']}_{photo.filename}")
             photo_path = os.path.join(upload_folder, filename)

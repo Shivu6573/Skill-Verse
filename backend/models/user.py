@@ -1,4 +1,4 @@
-from app import mongo, bcrypt, create_app
+from app import mongo, bcrypt
 from datetime import datetime
 from bson import ObjectId
 
@@ -54,9 +54,9 @@ class User:
     @staticmethod
     def seed_demo_users():
         if mongo.db is None:
-            app = create_app(seed_data_flag=False)
-            with app.app_context():
-                return User.seed_demo_users()
+            raise RuntimeError(
+                "MONGO_URI must include a database name; expected the skillverse database."
+            )
 
         users = [
             ("Admin User", "admin@edu.com", "admin123", "admin", "", "", ""),

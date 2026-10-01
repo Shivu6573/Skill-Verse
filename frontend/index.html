@@ -1,0 +1,22 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <meta name="theme-color" content="#0b1220">
+  <title>Skill Verse</title>
+  <script src="/static/js/api-config.js"></script>
+</head>
+<body>
+  <main>
+    <h1>Skill Verse</h1>
+    <p>Opening the learning platform…</p>
+    <p><a id="open-platform" href="http://localhost:5000/login">Continue to Skill Verse</a></p>
+  </main>
+  <script>
+    const platformUrl = `${window.SKILLVERSE_API_BASE_URL.replace(/\/+$/, "")}/login`;
+    document.getElementById("open-platform").href = platformUrl;
+    window.location.replace(platformUrl);
+  </script>
+</body>
+</html>

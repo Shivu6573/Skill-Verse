@@ -27,7 +27,7 @@ def build_certificate_context(user, course, percentage=None, completion_datetime
     completed = _format_completion_datetime(completion_datetime)
     certificate_id_value = certificate_id or generate_certificate_id()
     issue_date_value = issue_date or datetime.utcnow().strftime("%Y-%m-%d")
-    base_url = os.getenv("APP_BASE_URL", "https://skillverse.example")
+    base_url = os.getenv("APP_BASE_URL") or "https://skillverse.example"
     verification_url_value = verification_url or f"{base_url.rstrip('/')}/certificate/verify/{certificate_id_value}"
 
     qr = qrcode.QRCode(version=1, box_size=10, border=4)

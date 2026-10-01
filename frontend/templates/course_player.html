@@ -121,9 +121,10 @@
     const currentTime = Math.max(0, ytPlayer.getCurrentTime() || 0);
     const progress = duration > 0 ? Math.min(100, (currentTime / duration) * 100) : 0;
 
-    fetch(`/course/${courseId}/complete`, {
+    fetch(window.SKILLVERSE_API_URL(`/course/${courseId}/complete`), {
       method: 'POST',
       headers: { 'Content-Type': 'application/json' },
+      credentials: 'include',
       body: JSON.stringify({
         position: Math.floor(currentTime),
         duration: Math.floor(duration),
@@ -160,9 +161,10 @@
     }
   }
   function sendProgressUpdate(payload) {
-    return fetch(`/course/${courseId}/progress`, {
+    return fetch(window.SKILLVERSE_API_URL(`/course/${courseId}/progress`), {
       method: 'POST',
       headers: { 'Content-Type': 'application/json' },
+      credentials: 'include',
       body: JSON.stringify(payload)
     }).then(async (response) => {
       const data = await response.json();
@@ -181,9 +183,10 @@
               return;
             }
             // Fallback: send complete request directly if player not available
-            fetch(`/course/${courseId}/complete`, {
+            fetch(window.SKILLVERSE_API_URL(`/course/${courseId}/complete`), {
               method: 'POST',
               headers: { 'Content-Type': 'application/json' },
+              credentials: 'include',
               body: JSON.stringify({
                 position: Math.floor(initialPosition || 0),
                 duration: Math.floor(0),
